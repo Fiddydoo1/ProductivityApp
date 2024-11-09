@@ -3,11 +3,10 @@
 #include <ctime>
 #include <conio.h>
 #include <iomanip>
+#include <string.h>
+#include <vector>
 
-int main() {
-
-    // Get the current time from the system clock
-
+void add_new(std::vector<double> vector_of_fractions) {
     auto now = std::chrono::system_clock::now();
 
     // Convert it to a time_t which represents calendar time
@@ -28,14 +27,14 @@ int main() {
     std::cin >> bed_hour;
     std::cout << "Minute?: ";
     std::cin >> bed_minute;
+    std::cout << std::endl;
 
     std::tm bedtime = local_time;
 
     bedtime.tm_hour = bed_hour;
     bedtime.tm_min = bed_minute;
     bedtime.tm_sec = 0;
-
-    //Checks if the date entered or something like that is past midnight
+    // Checks if the date entered or something like that is past midnight
 
     if (bedtime.tm_hour < local_time.tm_hour || (bedtime.tm_hour == local_time.tm_hour && bedtime.tm_min < local_time.tm_min)) {
         bedtime.tm_mday += 1;
@@ -46,60 +45,53 @@ int main() {
     double seconds_until_bedtime = std::difftime(bedtime_time, current_time);
 
     double total_time_in_seconds = seconds_until_bedtime;
-    double school = (2.0 / 3.0) * total_time_in_seconds;
-    double project = (1.0 / 3.0) * total_time_in_seconds;
 
-    int school_hours = static_cast<int>(school) / 3600;
-    int school_minutes = (static_cast<int>(school) % 3600) / 60;
-    int school_seconds = static_cast<int>(school) % 60;
+    double previous = total_time_in_seconds;
 
-    int project_hours = static_cast<int>(project) / 3600;
-    int project_minutes = (static_cast<int>(project) % 3600) / 60;
-    int project_seconds = static_cast<int>(project) % 60;
+    
+    for (int i = 0; i < vector_of_fractions.size(); i++) {
 
-    std::cout << "Time until bedtime: "
-        << floor(total_time_in_seconds / 3600) << " hours, "
-        << (static_cast<int>(total_time_in_seconds) % 3600) / 60 << " minutes, "
-        << static_cast<int>(total_time_in_seconds) % 60 << " seconds.\n";
+        if (i == 0) {
+            total_time_in_seconds = seconds_until_bedtime * vector_of_fractions[i];
+        }
+        else {
+            total_time_in_seconds = total_time_in_seconds + seconds_until_bedtime * vector_of_fractions[i];
+        }
 
-    auto projectDuration = std::chrono::seconds(static_cast<int>(project));
-    auto project_end_time = now + projectDuration;
+        int name_hours = static_cast<int>(total_time_in_seconds) / 3600;
+        int name_minutes = (static_cast<int>(total_time_in_seconds) % 3600) / 60;
+        int name_seconds = static_cast<int>(total_time_in_seconds) % 60;
 
-    std::time_t project_end_time_t = std::chrono::system_clock::to_time_t(project_end_time);
+        auto name_duration = std::chrono::seconds(static_cast<int>(total_time_in_seconds));
 
-    std::tm future_time;
-    localtime_s(&future_time, &project_end_time_t);
+        auto name_end_time = now + name_duration;
 
-    char future_buffer[9];
-    std::strftime(future_buffer, sizeof(future_buffer), "%H:%M:%S", &future_time);
 
-    //School part
+        std::time_t name_end_time_t = std::chrono::system_clock::to_time_t(name_end_time);
 
-    std::cout << "Time for school: ";
+        std::tm future_time;
+        localtime_s(&future_time, &name_end_time_t);
 
-    std::cout << school_hours << ":";
-
-    if (school_minutes < 10) {
-        std::cout << "0" << school_minutes << ":" << school_seconds << std::endl;
-    }
-    else {
-        std::cout << school_minutes << ":" << school_seconds << "s" << std::endl;
+        char future_buffer[9];
+        std::strftime(future_buffer, sizeof(future_buffer), "%H:%M:%S", &future_time);
+        std::cout << "Set timer to: " << std::endl;
+        std::cout << future_buffer << std::endl << std::endl;
+        
     }
 
-    //Project part
+}
 
-    std::cout << "Time for project: ";
+int main() {
 
-    std::cout << project_hours << ":";
+    //Add your fractions here
 
-    if (project_minutes < 10) {
-        std::cout << "0" << project_minutes << ":" << project_seconds << "s" << std::endl;
-    }
-    else {
-        std::cout << project_minutes << ":" << project_seconds << "s" << std::endl;
-    }
+    std::vector<double> fractions = {
+        2.0 / 4.0,
+        1.0 / 4.0,
+        1.0 / 4.0
+    };
 
-    std::cout << "Set timer to: " << future_buffer << std::endl;
+    add_new(fractions);
 
     _getch();
 
